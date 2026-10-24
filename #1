@@ -1,0 +1,1122 @@
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Salvador Dalí Surrealist Tarot & Visual Customizer</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        gold: {
+                            100: '#FFF9E6',
+                            300: '#FFE082',
+                            400: '#FFD54F',
+                            500: '#FFC107',
+                            600: '#FFB300',
+                            700: '#FFA000',
+                        },
+                        surreal: {
+                            bg: '#0a0812',
+                            card: '#141124',
+                            accent: '#d4af37',
+                            crimson: '#8b0000',
+                            cyan: '#00f3ff'
+                        }
+                    },
+                    fontFamily: {
+                        serif: ['Cinzel', 'Georgia', 'serif'],
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #08060f;
+            color: #e2e8f0;
+            overflow-x: hidden;
+        }
+
+        h1, h2, h3, h4, .font-cinzel {
+            font-family: 'Cinzel', serif;
+        }
+
+        /* Card Flip Animation */
+        .card-container {
+            perspective: 1200px;
+        }
+
+        .card-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            transition: transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transform-style: preserve-3d;
+        }
+
+        .card-container.flipped .card-inner {
+            transform: rotateY(180deg);
+        }
+
+        .card-front, .card-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            -webkit-backface-visibility: hidden;
+            backface-visibility: hidden;
+            border-radius: 1rem;
+            overflow: hidden;
+        }
+
+        .card-front {
+            transform: rotateY(180deg);
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0d0b18;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #2a2444;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #d4af37;
+        }
+
+        /* Ambient Glow & Effects */
+        .surreal-glow {
+            box-shadow: 0 0 25px rgba(212, 175, 55, 0.25);
+        }
+        
+        .modal-blur {
+            backdrop-filter: blur(12px);
+        }
+
+        /* Range Slider Styling */
+        input[type=range] {
+            accent-color: #d4af37;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between text-gray-200">
+
+    <!-- Header Navigation -->
+    <header class="border-b border-yellow-900/30 bg-black/60 backdrop-blur-md sticky top-0 z-40 px-4 lg:px-8 py-3">
+        <div class="max-w-7xl mx-auto flex items-center justify-between">
+            <div class="flex items-center space-x-3 cursor-pointer" onclick="resetApp()">
+                <div class="w-10 h-10 rounded-full border border-amber-500/50 bg-amber-950/40 flex items-center justify-center text-amber-400 font-bold text-xl shadow-[0_0_10px_rgba(212,175,55,0.3)]">
+                    👁️
+                </div>
+                <div>
+                    <h1 class="text-xl lg:text-2xl font-black tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-amber-400 to-amber-600">
+                        DALÍ TAROT
+                    </h1>
+                    <p class="text-[10px] text-amber-400/60 uppercase tracking-widest hidden sm:block">Surrealist Divination & Vector Studio</p>
+                </div>
+            </div>
+
+            <!-- Global Action Controls -->
+            <div class="flex items-center space-x-2 md:space-x-4">
+                <button onclick="openGlobalThemeModal()" class="px-3 py-1.5 rounded-lg border border-amber-500/40 bg-amber-950/30 hover:bg-amber-900/50 text-amber-300 text-xs md:text-sm font-medium transition flex items-center space-x-1.5 shadow-sm">
+                    <i class="fa-solid fa-paint-brush">
+</i>
+                    <span class="hidden sm:inline">Theme Studio</span>
+                </button>
+                <button onclick="toggleCardDeckDrawer()" class="px-3 py-1.5 rounded-lg border border-purple-500/40 bg-purple-950/30 hover:bg-purple-900/50 text-purple-300 text-xs md:text-sm font-medium transition flex items-center space-x-1.5">
+                    <i class="fa-solid fa-layer-group">
+</i>
+                    <span class="hidden sm:inline">Gallery (17 Cards)</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="flex-grow max-w-7xl w-full mx-auto p-4 md:p-6 lg:p-8 flex flex-col items-center">
+
+        <!-- Spread Selection / Mode Banner -->
+        <section id="spread-selector" class="w-full max-w-4xl text-center mb-8">
+            <h2 class="text-2xl md:text-4xl font-bold text-amber-100 mb-2">Select Your Surrealist Reading</h2>
+            <p class="text-amber-300/70 text-sm md:text-base max-w-2xl mx-auto mb-6">
+                Consult the cosmic clock, melting horizons, and subconscious archetypes crafted through surrealist geometry.
+            </p>
+
+            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+                <button onclick="selectSpread('single')" class="spread-btn active p-3 rounded-xl border border-amber-500/40 bg-amber-950/20 hover:border-amber-400 hover:bg-amber-900/30 transition flex flex-col items-center group">
+                    <i class="fa-solid fa-eye text-2xl text-amber-400 mb-2 group-hover:scale-110 transition">
+</i>
+                    <span class="text-xs font-semibold text-amber-200">Daily Single</span>
+                    <span class="text-[10px] text-gray-400">1 Card</span>
+                </button>
+                <button onclick="selectSpread('three')" class="spread-btn p-3 rounded-xl border border-amber-500/20 bg-black/40 hover:border-amber-400 hover:bg-amber-900/30 transition flex flex-col items-center group">
+                    <i class="fa-solid fa-hourglass-half text-2xl text-amber-400 mb-2 group-hover:scale-110 transition">
+</i>
+                    <span class="text-xs font-semibold text-amber-200">Time Trinity</span>
+                    <span class="text-[10px] text-gray-400">3 Cards</span>
+                </button>
+                <button onclick="selectSpread('five')" class="spread-btn p-3 rounded-xl border border-amber-500/20 bg-black/40 hover:border-amber-400 hover:bg-amber-900/30 transition flex flex-col items-center group">
+                    <i class="fa-solid fa-star text-2xl text-amber-400 mb-2 group-hover:scale-110 transition">
+</i>
+                    <span class="text-xs font-semibold text-amber-200">5-Element</span>
+                    <span class="text-[10px] text-gray-400">5 Cards</span>
+                </button>
+                <button onclick="selectSpread('celtic')" class="spread-btn p-3 rounded-xl border border-amber-500/20 bg-black/40 hover:border-amber-400 hover:bg-amber-900/30 transition flex flex-col items-center group">
+                    <i class="fa-solid fa-cross text-2xl text-amber-400 mb-2 group-hover:scale-110 transition">
+</i>
+                    <span class="text-xs font-semibold text-amber-200">Dalí Cross</span>
+                    <span class="text-[10px] text-gray-400">10 Cards</span>
+                </button>
+                <button onclick="selectSpread('lovers')" class="spread-btn p-3 rounded-xl border border-amber-500/20 bg-black/40 hover:border-amber-400 hover:bg-amber-900/30 transition flex flex-col items-center group">
+                    <i class="fa-solid fa-heart text-2xl text-amber-400 mb-2 group-hover:scale-110 transition">
+</i>
+                    <span class="text-xs font-semibold text-amber-200">Lovers Mirror</span>
+                    <span class="text-[10px] text-gray-400">4 Cards</span>
+                </button>
+                <button onclick="selectSpread('career')" class="spread-btn p-3 rounded-xl border border-amber-500/20 bg-black/40 hover:border-amber-400 hover:bg-amber-900/30 transition flex flex-col items-center group">
+                    <i class="fa-solid fa-compass text-2xl text-amber-400 mb-2 group-hover:scale-110 transition">
+</i>
+                    <span class="text-xs font-semibold text-amber-200">Career Horizon</span>
+                    <span class="text-[10px] text-gray-400">4 Cards</span>
+                </button>
+            </div>
+
+            <!-- Shuffle / Draw Button -->
+            <div class="mt-8 flex justify-center items-center space-x-4">
+                <button id="draw-btn" onclick="drawCards()" class="px-8 py-3.5 rounded-full bg-gradient-to-r from-amber-600 via-amber-500 to-yellow-600 text-black font-bold text-base md:text-lg tracking-wider hover:from-amber-500 hover:to-yellow-400 shadow-[0_0_25px_rgba(212,175,55,0.4)] transform hover:-translate-y-0.5 active:translate-y-0 transition">
+                    <i class="fa-solid fa-wand-magic-sparkles mr-2">
+</i> DRAW SURREAL TAROT
+                </button>
+                <button onclick="resetApp()" class="p-3.5 rounded-full bg-gray-900 border border-gray-700 text-gray-400 hover:text-white hover:border-gray-500 transition" title="Reset Spread">
+                    <i class="fa-solid fa-rotate-left">
+</i>
+                </button>
+            </div>
+        </section>
+
+        <!-- Tarot Board Display Container -->
+        <section id="reading-board" class="w-full min-h-[450px] flex flex-wrap justify-center items-center gap-6 py-6">
+            <div class="text-center text-gray-500 my-12">
+                <i class="fa-solid fa-hand-holding-magic text-5xl mb-4 text-amber-500/30">
+</i>
+                <p class="text-sm uppercase tracking-widest font-semibold">Press "Draw Surreal Tarot" to Consult the Oracle</p>
+            </div>
+        </section>
+
+        <!-- Interpretation & Insight Section -->
+        <section id="reading-interpretation" class="w-full max-w-4xl mt-8 hidden border border-amber-500/30 bg-black/70 rounded-2xl p-6 backdrop-blur-md shadow-2xl">
+            <h3 class="text-xl md:text-2xl font-bold text-amber-300 mb-4 flex items-center border-b border-amber-900/40 pb-3">
+                <i class="fa-solid fa-scroll text-amber-500 mr-3">
+</i> Subconscious Archetype Interpretation
+            </h3>
+            <div id="interpretation-content" class="space-y-4 text-sm md:text-base text-gray-300 leading-relaxed">
+                <!-- Dynamically Inserted Readings -->
+            </div>
+        </section>
+    </main>
+
+    <!-- CARD ART VISUAL CUSTOMIZER MODAL -->
+    <div id="customizer-modal" class="fixed inset-0 z-50 bg-black/80 modal-blur hidden flex items-center justify-center p-2 sm:p-4 overflow-y-auto">
+        <div class="bg-gray-950 border border-amber-500/40 rounded-2xl w-full max-w-5xl max-h-[92vh] overflow-hidden flex flex-col lg:flex-row shadow-[0_0_50px_rgba(0,0,0,0.9)]">
+            
+            <!-- Left Side: Live Dynamic Vector Preview -->
+            <div class="lg:w-1/2 p-4 sm:p-6 bg-gradient-to-b from-black to-gray-900 flex flex-col items-center justify-center border-b lg:border-b-0 lg:border-r border-amber-900/30">
+                <div class="flex items-center justify-between w-full mb-3">
+                    <span class="text-xs uppercase tracking-widest text-amber-400/70 font-semibold" id="modal-card-title">Editing Card Art</span>
+                    <span class="text-[11px] bg-amber-950/80 text-amber-300 border border-amber-800/50 px-2 py-0.5 rounded-full" id="modal-card-num">ARCANA I</span>
+                </div>
+
+                <!-- Interactive SVG Preview Canvas -->
+                <div id="modal-svg-preview-container" class="w-full max-w-[280px] sm:max-w-[320px] aspect-[2/3] rounded-2xl overflow-hidden border-2 border-amber-500/50 shadow-[0_0_30px_rgba(212,175,55,0.2)] bg-black">
+                    <!-- Dynamic Inline SVG Injection -->
+                </div>
+
+                <p class="text-[11px] text-gray-400 mt-3 text-center">
+                    <i class="fa-solid fa-circle-info mr-1 text-amber-400">
+</i> Changes update live on vector paths & save automatically.
+                </p>
+            </div>
+
+            <!-- Right Side: Customization Controls Panel -->
+            <div class="lg:w-1/2 p-4 sm:p-6 overflow-y-auto flex flex-col justify-between space-y-6">
+                <div>
+                    <!-- Header -->
+                    <div class="flex items-center justify-between border-b border-gray-800 pb-3 mb-4">
+                        <h3 class="text-lg font-bold text-amber-200 flex items-center">
+                            <i class="fa-solid fa-sliders text-amber-400 mr-2">
+</i> Surrealist Vector Controls
+                        </h3>
+                        <button onclick="closeCustomizerModal()" class="text-gray-400 hover:text-white text-xl">
+                            <i class="fa-solid fa-xmark">
+</i>
+                        </button>
+                    </div>
+
+                    <!-- Preset Surrealist Themes -->
+                    <div class="mb-5">
+                        <label class="block text-xs uppercase tracking-wider text-amber-400/80 font-bold mb-2">Preset Surrealist Themes</label>
+                        <div class="grid grid-cols-2 gap-2">
+                            <button onclick="applyPresetTheme('obsidian')" class="p-2 text-xs rounded-lg border border-amber-500/30 bg-black hover:border-amber-400 text-amber-200 text-left">
+                                🖤 Obsidian & Gold
+                            </button>
+                            <button onclick="applyPresetTheme('dusk')" class="p-2 text-xs rounded-lg border border-pink-500/30 bg-purple-950/30 hover:border-pink-400 text-pink-200 text-left">
+                                🌅 Desert Twilight
+                            </button>
+                            <button onclick="applyPresetTheme('cyber')" class="p-2 text-xs rounded-lg border border-cyan-500/30 bg-cyan-950/30 hover:border-cyan-400 text-cyan-200 text-left">
+                                ⚡ Cyber Surreal
+                            </button>
+                            <button onclick="applyPresetTheme('sepia')" class="p-2 text-xs rounded-lg border border-yellow-700/30 bg-amber-950/20 hover:border-yellow-600 text-yellow-200 text-left">
+                                📜 Vintage Parchment
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Category 1: Color Palette -->
+                    <div class="space-y-3 mb-5 border-t border-gray-800/80 pt-4">
+                        <h4 class="text-xs uppercase tracking-wider text-amber-400 font-bold">1. Color Palette Customizer</h4>
+                        
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-[11px] text-gray-400 mb-1">Background Top</label>
+                                <input type="color" id="ctrl-bg-top" onchange="updateCardStyle()" class="w-full h-8 bg-transparent rounded cursor-pointer border border-gray-700">
+                            </div>
+                            <div>
+                                <label class="block text-[11px] text-gray-400 mb-1">Background Bottom</label>
+                                <input type="color" id="ctrl-bg-bottom" onchange="updateCardStyle()" class="w-full h-8 bg-transparent rounded cursor-pointer border border-gray-700">
+                            </div>
+                            <div>
+                                <label class="block text-[11px] text-gray-400 mb-1">Melting Gold Gradient</label>
+                                <input type="color" id="ctrl-gold-color" onchange="updateCardStyle()" class="w-full h-8 bg-transparent rounded cursor-pointer border border-gray-700">
+                            </div>
+                            <div>
+                                <label class="block text-[11px] text-gray-400 mb-1">Border & Accent</label>
+                                <input type="color" id="ctrl-accent-color" onchange="updateCardStyle()" class="w-full h-8 bg-transparent rounded cursor-pointer border border-gray-700">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Category 2: Melting Clocks & Distortion -->
+                    <div class="space-y-3 mb-5 border-t border-gray-800/80 pt-4">
+                        <h4 class="text-xs uppercase tracking-wider text-amber-400 font-bold">2. Melting Clock & Geometry</h4>
+                        
+                        <div>
+                            <div class="flex justify-between text-xs text-gray-300 mb-1">
+                                <span>Clock Drip Length</span>
+                                <span id="val-drip-length">1.0</span>
+                            </div>
+                            <input type="range" id="ctrl-drip-length" min="0.2" max="2.5" step="0.1" value="1.0" oninput="updateCardStyle()" class="w-full">
+                        </div>
+
+                        <div>
+                            <div class="flex justify-between text-xs text-gray-300 mb-1">
+                                <span>Surreal Distortion Angle</span>
+                                <span id="val-distortion">0 deg</span>
+                            </div>
+                            <input type="range" id="ctrl-distortion" min="-45" max="45" step="1" value="0" oninput="updateCardStyle()" class="w-full">
+                        </div>
+
+                        <div>
+                            <div class="flex justify-between text-xs text-gray-300 mb-1">
+                                <span>Glow Intensity</span>
+                                <span id="val-glow">50%</span>
+                            </div>
+                            <input type="range" id="ctrl-glow" min="0" max="100" step="5" value="50" oninput="updateCardStyle()" class="w-full">
+                        </div>
+                    </div>
+
+                    <!-- Category 3: Salvador Dalí Details & Toggles -->
+                    <div class="space-y-3 border-t border-gray-800/80 pt-4">
+                        <h4 class="text-xs uppercase tracking-wider text-amber-400 font-bold">3. Surrealist Details & Toggles</h4>
+                        
+                        <div class="grid grid-cols-2 gap-2 text-xs">
+                            <label class="flex items-center space-x-2 bg-gray-900 p-2 rounded border border-gray-800 cursor-pointer hover:border-gray-700">
+                                <input type="checkbox" id="ctrl-toggle-elephants" onchange="updateCardStyle()" class="rounded text-amber-500 focus:ring-0">
+                                <span class="text-gray-300">Stilt Elephants</span>
+                            </label>
+                            <label class="flex items-center space-x-2 bg-gray-900 p-2 rounded border border-gray-800 cursor-pointer hover:border-gray-700">
+                                <input type="checkbox" id="ctrl-toggle-crutches" onchange="updateCardStyle()" class="rounded text-amber-500 focus:ring-0">
+                                <span class="text-gray-300">Surreal Crutches</span>
+                            </label>
+                            <label class="flex items-center space-x-2 bg-gray-900 p-2 rounded border border-gray-800 cursor-pointer hover:border-gray-700">
+                                <input type="checkbox" id="ctrl-toggle-stars" onchange="updateCardStyle()" class="rounded text-amber-500 focus:ring-0">
+                                <span class="text-gray-300">Floating Stars</span>
+                            </label>
+                            <label class="flex items-center space-x-2 bg-gray-900 p-2 rounded border border-gray-800 cursor-pointer hover:border-gray-700">
+                                <input type="checkbox" id="ctrl-toggle-keyhole" onchange="updateCardStyle()" class="rounded text-amber-500 focus:ring-0">
+                                <span class="text-gray-300">Cosmic Keyhole</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Footer Action Buttons -->
+                <div class="border-t border-gray-800 pt-4 flex items-center justify-between space-x-3">
+                    <button onclick="resetCurrentCardStyle()" class="px-4 py-2 text-xs rounded-lg border border-gray-700 text-gray-400 hover:text-white hover:border-gray-500 transition">
+                        Reset Default
+                    </button>
+                    <div class="flex items-center space-x-2">
+                        <button onclick="applyStyleToAllCards()" class="px-3 py-2 text-xs rounded-lg border border-amber-500/40 bg-amber-950/40 text-amber-300 hover:bg-amber-900/60 transition">
+                            Apply to All 17 Cards
+                        </button>
+                        <button onclick="closeCustomizerModal()" class="px-5 py-2 text-xs rounded-lg bg-amber-500 text-black font-bold hover:bg-amber-400 transition">
+                            Done
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- GALLERY DECK DRAWER MODAL -->
+    <div id="deck-drawer-modal" class="fixed inset-0 z-50 bg-black/80 modal-blur hidden flex items-center justify-center p-4">
+        <div class="bg-gray-950 border border-purple-500/40 rounded-2xl w-full max-w-6xl max-h-[90vh] flex flex-col shadow-2xl overflow-hidden">
+            <div class="p-4 sm:p-6 border-b border-gray-800 flex items-center justify-between bg-black/40">
+                <div>
+                    <h3 class="text-xl font-bold text-purple-200">Dalí Major Arcana Deck Gallery</h3>
+                    <p class="text-xs text-purple-400/60">Browse, inspect, and customize all 17 procedural vector tarot cards.</p>
+                </div>
+                <button onclick="toggleCardDeckDrawer()" class="text-gray-400 hover:text-white text-2xl">
+                    <i class="fa-solid fa-xmark">
+</i>
+                </button>
+            </div>
+            
+            <div id="gallery-grid" class="p-6 overflow-y-auto grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+                <!-- Dynamically populated card gallery -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="border-t border-yellow-900/20 bg-black/80 py-4 px-6 text-center text-xs text-amber-500/50">
+        <p>Salvador Dalí Surrealist Tarot Studio • Powered by Pure Procedural SVGs & Local Storage Persistence</p>
+    </footer>
+
+    <!-- JavaScript Application Logic -->
+    <script>
+        /* ==========================================================================
+           1. MAJOR ARCANA CARD DATA DECK (17 FULL CARDS)
+           ========================================================================== */
+        const TAROT_DECK = [
+            {
+                id: 0,
+                numeral: "0",
+                name: "The Fool",
+                subtitle: "The Leap into the Infinite Void",
+                keywords: ["Innocence", "Beginnings", "Spontaneity", "Surreal Leap"],
+                meaning: "Standing at the edge of a melting landscape, The Fool steps unconcerned into the void. A clock drips like liquid silk from his shoulder, symbolizing freedom from linear time.",
+                custom: {
+                    bgTop: "#120826", bgBottom: "#3b1154", goldColor: "#ffd54f", accentColor: "#d4af37",
+                    dripLength: 1.2, distortion: 12, glow: 60,
+                    elephants: true, crutches: false, stars: true, keyhole: false
+                }
+            },
+            {
+                id: 1,
+                numeral: "I",
+                name: "The Magician",
+                subtitle: "Alchemist of the Subconscious",
+                keywords: ["Manifestation", "Resourcefulness", "Power", "Surreal Alchemy"],
+                meaning: "The Magician channels cosmic energy through a floating keyhole wand. Elements dissolve around him into gold liquid, turning thought into raw matter.",
+                custom: {
+                    bgTop: "#081d26", bgBottom: "#0b4d54", goldColor: "#ffea00", accentColor: "#00f3ff",
+                    dripLength: 1.0, distortion: -8, glow: 75,
+                    elephants: false, crutches: true, stars: true, keyhole: true
+                }
+            },
+            {
+                id: 2,
+                numeral: "II",
+                name: "The High Priestess",
+                subtitle: "Guardian of the Secret Eye",
+                keywords: ["Intuition", "Mystery", "Subconscious", "Silent Wisdom"],
+                meaning: "Veiled behind a cosmic eye blossom, she holds the keys to hidden realms. A pale melting moon casts elongated surreal shadows across her sacred desert.",
+                custom: {
+                    bgTop: "#0d0a28", bgBottom: "#281240", goldColor: "#e0e0e0", accentColor: "#a855f7",
+                    dripLength: 0.8, distortion: 5, glow: 40,
+                    elephants: false, crutches: true, stars: true, keyhole: true
+                }
+            },
+            {
+                id: 3,
+                numeral: "III",
+                name: "The Empress",
+                subtitle: "Mother of Surreal Creation",
+                keywords: ["Abundance", "Nature", "Fertility", "Sensual Vision"],
+                meaning: "Surrounded by blooming surreal flora and weeping clock vines, The Empress embodies lush, uninhibited creation birthed from dreamlike waters.",
+                custom: {
+                    bgTop: "#21091a", bgBottom: "#52122d", goldColor: "#ffb300", accentColor: "#ec4899",
+                    dripLength: 1.4, distortion: -15, glow: 65,
+                    elephants: true, crutches: false, stars: true, keyhole: false
+                }
+            },
+            {
+                id: 4,
+                numeral: "IV",
+                name: "The Emperor",
+                subtitle: "Architect of Rigid Horizons",
+                keywords: ["Authority", "Structure", "Control", "Stilt Pillar"],
+                meaning: "Seated on a towering throne resting on spider-thin stilt legs, The Emperor enforces structure over a volatile, shifting desert domain.",
+                custom: {
+                    bgTop: "#260808", bgBottom: "#591414", goldColor: "#ff8f00", accentColor: "#ef4444",
+                    dripLength: 0.5, distortion: 0, glow: 30,
+                    elephants: true, crutches: true, stars: false, keyhole: false
+                }
+            },
+            {
+                id: 5,
+                numeral: "V",
+                name: "The Hierophant",
+                subtitle: "Oracle of the Melting Key",
+                keywords: ["Tradition", "Beliefs", "Spiritual Wisdom", "Conformity"],
+                meaning: "The Hierophant holds the key to esoteric knowledge, propped up by golden crutches. Soft clocks drape over sacred altars.",
+                custom: {
+                    bgTop: "#1c1808", bgBottom: "#45380c", goldColor: "#ffe082", accentColor: "#eab308",
+                    dripLength: 1.1, distortion: 8, glow: 50,
+                    elephants: false, crutches: true, stars: true, keyhole: true
+                }
+            },
+            {
+                id: 6,
+                numeral: "VI",
+                name: "The Lovers",
+                subtitle: "Duality in the Burning Horizon",
+                keywords: ["Love", "Harmony", "Relationships", "Surreal Union"],
+                meaning: "Two melting figures merge under a cracked, radiant sun. Their shadows intertw borderlessly into a single golden path.",
+                custom: {
+                    bgTop: "#280a1c", bgBottom: "#611636", goldColor: "#ff80ab", accentColor: "#f43f5e",
+                    dripLength: 1.3, distortion: 20, glow: 70,
+                    elephants: false, crutches: false, stars: true, keyhole: true
+                }
+            },
+            {
+                id: 7,
+                numeral: "VII",
+                name: "The Chariot",
+                subtitle: "Conquest on Stilt Elephants",
+                keywords: ["Willpower", "Drive", "Determination", "Surreal Momentum"],
+                meaning: "A triumphant chariot propelled forward by long-legged cosmic elephants striding effortlessly across desert dunes.",
+                custom: {
+                    bgTop: "#081b26", bgBottom: "#103c4f", goldColor: "#80deea", accentColor: "#06b6d4",
+                    dripLength: 1.0, distortion: -10, glow: 55,
+                    elephants: true, crutches: true, stars: true, keyhole: false
+                }
+            },
+            {
+                id: 8,
+                numeral: "VIII",
+                name: "Strength",
+                subtitle: "Taming the Soft Beast",
+                keywords: ["Courage", "Persuasion", "Patience", "Inner Power"],
+                meaning: "A gentle figure calmly handles a fierce lion whose body transitions into a fluid, golden melting clock pattern.",
+                custom: {
+                    bgTop: "#211608", bgBottom: "#4d2e0b", goldColor: "#ffcc80", accentColor: "#f97316",
+                    dripLength: 1.5, distortion: 10, glow: 60,
+                    elephants: false, crutches: false, stars: true, keyhole: false
+                }
+            },
+            {
+                id: 9,
+                numeral: "IX",
+                name: "The Hermit",
+                subtitle: "Solitude on the Infinite Plane",
+                keywords: ["Soul-Searching", "Introspection", "Guidance", "Loneliness"],
+                meaning: "Standing atop a high desert ridge, The Hermit raises an eye-lantern, illuminating hidden truths in the dark subconscious sky.",
+                custom: {
+                    bgTop: "#090c17", bgBottom: "#161d36", goldColor: "#90caf9", accentColor: "#3b82f6",
+                    dripLength: 0.7, distortion: -5, glow: 45,
+                    elephants: false, crutches: true, stars: true, keyhole: true
+                }
+            },
+            {
+                id: 10,
+                numeral: "X",
+                name: "Wheel of Fortune",
+                subtitle: "The Eternal Melting Dial",
+                keywords: ["Change", "Cycles", "Inevitable Fate", "Time Motion"],
+                meaning: "A massive, distorted clock dial spins across the desert horizon, constantly reshaping fate with every fluid tick.",
+                custom: {
+                    bgTop: "#1c0d28", bgBottom: "#431252", goldColor: "#ce93d8", accentColor: "#a855f7",
+                    dripLength: 1.8, distortion: 30, glow: 80,
+                    elephants: true, crutches: false, stars: true, keyhole: true
+                }
+            },
+            {
+                id: 11,
+                numeral: "XI",
+                name: "Justice",
+                subtitle: "Scales of Fluid Truth",
+                keywords: ["Fairness", "Truth", "Law", "Balanced Paradox"],
+                meaning: "Scales made of melting gold weigh heavy truths against surreal feathers, balanced precisely upon a crutch.",
+                custom: {
+                    bgTop: "#081f1d", bgBottom: "#114742", goldColor: "#a7ffeb", accentColor: "#14b8a6",
+                    dripLength: 0.9, distortion: 0, glow: 50,
+                    elephants: false, crutches: true, stars: false, keyhole: false
+                }
+            },
+            {
+                id: 12,
+                numeral: "XII",
+                name: "The Hanged Man",
+                subtitle: "Perspective of the Suspended Eye",
+                keywords: ["Surrender", "New Perspective", "Pause", "Transcendence"],
+                meaning: "Suspended upside down from a surreal crutch tree, he sees the world right-side up in a pool of liquid time below.",
+                custom: {
+                    bgTop: "#1a1608", bgBottom: "#383111", goldColor: "#e6ee9c", accentColor: "#84cc16",
+                    dripLength: 1.6, distortion: -25, glow: 60,
+                    elephants: false, crutches: true, stars: true, keyhole: false
+                }
+            },
+            {
+                id: 13,
+                numeral: "XIII",
+                name: "Death",
+                subtitle: "Transformation of the Butterfly Skeleton",
+                keywords: ["Endings", "Change", "Transformation", "Metamorphosis"],
+                meaning: "Skeletal wings made of gold keys sprout from a melting cocoon, signaling profound, undeniable renewal.",
+                custom: {
+                    bgTop: "#0a0a0a", bgBottom: "#241f21", goldColor: "#d4af37", accentColor: "#64748b",
+                    dripLength: 1.1, distortion: 15, glow: 35,
+                    elephants: true, crutches: true, stars: true, keyhole: true
+                }
+            },
+            {
+                id: 14,
+                numeral: "XIV",
+                name: "Temperance",
+                subtitle: "The Liquid Alchemy of Time",
+                keywords: ["Balance", "Moderation", "Patience", "Harmonious Synthesis"],
+                meaning: "An ethereal figure pours glowing golden time fluid back and forth between two floating keyholes without losing a drop.",
+                custom: {
+                    bgTop: "#081526", bgBottom: "#133454", goldColor: "#9fa8da", accentColor: "#6366f1",
+                    dripLength: 1.2, distortion: -10, glow: 65,
+                    elephants: false, crutches: false, stars: true, keyhole: true
+                }
+            },
+            {
+                id: 15,
+                numeral: "XV",
+                name: "The Devil",
+                subtitle: "Illusions of the Mechanical Mind",
+                keywords: ["Shadow Self", "Attachment", "Restriction", "Surreal Temptation"],
+                meaning: "Chained to a golden clockwork engine, figures believe they are trapped, blind to the keyhole right beside them.",
+                custom: {
+                    bgTop: "#280707", bgBottom: "#520d0d", goldColor: "#ffab91", accentColor: "#dc2626",
+                    dripLength: 0.6, distortion: 35, glow: 75,
+                    elephants: true, crutches: true, stars: false, keyhole: true
+                }
+            },
+            {
+                id: 16,
+                numeral: "XVI",
+                name: "The Tower",
+                subtitle: "Shattering of the Crystal Illusion",
+                keywords: ["Sudden Upheaval", "Pride", "Revelation", "Breakthrough"],
+                meaning: "A fragile obelisk resting on stilted legs collapses as surreal lightning pierces the sky, freeing bound dreams.",
+                custom: {
+                    bgTop: "#241708", bgBottom: "#52320b", goldColor: "#ffcc80", accentColor: "#f97316",
+                    dripLength: 2.0, distortion: -30, glow: 90,
+                    elephants: true, crutches: false, stars: true, keyhole: false
+                }
+            }
+        ];
+
+        /* ==========================================================================
+           2. APP STATE MANAGEMENT & LOCAL STORAGE
+           ========================================================================== */
+        let activeSpread = 'single';
+        let activeReadingCards = [];
+        let editingCardId = null;
+
+        // Load saved custom styles from LocalStorage if present
+        function initApp() {
+            const savedCustoms = localStorage.getItem('dali_tarot_customizations');
+            if (savedCustoms) {
+                try {
+                    const parsed = JSON.parse(savedCustoms);
+                    parsed.forEach(saved => {
+                        const card = TAROT_DECK.find(c => c.id === saved.id);
+                        if (card) {
+                            card.custom = { ...card.custom, ...saved.custom };
+                        }
+                    });
+                } catch(e) {
+                    console.error("Failed to parse saved customizations", e);
+                }
+            }
+            renderGalleryGrid();
+        }
+
+        function saveCustomizationsToStorage() {
+            const exportData = TAROT_DECK.map(c => ({ id: c.id, custom: c.custom }));
+            localStorage.setItem('dali_tarot_customizations', JSON.stringify(exportData));
+        }
+
+        /* ==========================================================================
+           3. PROCEDURAL SVG VECTOR GENERATOR ENGINE
+           ========================================================================== */
+        function generateCardSVG(card, isInteractive = false) {
+            const c = card.custom;
+            
+            // Calc SVG Dynamic Values based on Controls
+            const drip = c.dripLength || 1.0;
+            const dist = c.distortion || 0;
+            const glowVal = (c.glow || 50) / 100;
+            
+            return `
+            <svg viewBox="0 0 300 480" class="w-full h-full select-none" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                    <!-- Background Linear Gradient -->
+                    <linearGradient id="bg-grad-${card.id}" x1="0%" y1="0%" x2="0%" y2="100%">
+                        <stop offset="0%" stop-color="${c.bgTop}" />
+                        <stop offset="100%" stop-color="${c.bgBottom}" />
+                    </linearGradient>
+
+                    <!-- Melting Gold Gradient -->
+                    <linearGradient id="gold-grad-${card.id}" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="#ffffff" />
+                        <stop offset="30%" stop-color="${c.goldColor}" />
+                        <stop offset="100%" stop-color="${c.accentColor}" />
+                    </linearGradient>
+
+                    <!-- Ambient Glow Filter -->
+                    <filter id="glow-filter-${card.id}" x="-20%" y="-20%" width="140%" height="140%">
+                        <feGaussianBlur stdDeviation="${4 * glowVal}" result="blur" />
+                        <feComposite in="SourceGraphic" in2="blur" operator="over" />
+                    </filter>
+                </defs>
+
+                <!-- CARD CONTAINER & BACKGROUND -->
+                <rect width="300" height="480" rx="16" fill="url(#bg-grad-${card.id})" />
+                <rect x="8" y="8" width="284" height="464" rx="12" fill="none" stroke="${c.accentColor}" stroke-width="2" stroke-opacity="0.6" stroke-dasharray="8 4" />
+
+                <!-- SURREAL HORIZON LINE -->
+                <path d="M 0,340 Q 150,${320 + dist} 300,340 L 300,480 L 0,480 Z" fill="#000000" fill-opacity="0.4" />
+                <path d="M 0,340 Q 150,${320 + dist} 300,340" stroke="${c.accentColor}" stroke-width="1.5" fill="none" stroke-opacity="0.5" />
+
+                <!-- OPTIONAL: FLOATING STARS -->
+                ${c.stars ? `
+                    <g fill="${c.goldColor}" opacity="0.6">
+                        <circle cx="40" cy="50" r="1.5" />
+                        <circle cx="260" cy="80" r="2" />
+                        <circle cx="220" cy="40" r="1" />
+                        <circle cx="70" cy="110" r="2" />
+                        <polygon points="150,30 152,35 157,35 153,38 155,43 150,40 145,43 147,38 143,35 148,35" opacity="0.8"/>
+                    </g>
+                ` : ''}
+
+                <!-- OPTIONAL: SURREAL COSMIC KEYHOLE -->
+                ${c.keyhole ? `
+                    <g transform="translate(150, 80)" filter="url(#glow-filter-${card.id})">
+                        <path d="M -12,-12 A 15,15 0 1,1 12,-12 L 8,20 L -8,20 Z" fill="none" stroke="${c.accentColor}" stroke-width="2" opacity="0.8" />
+                        <circle cx="0" cy="-5" r="4" fill="${c.goldColor}" />
+                    </g>
+                ` : ''}
+
+                <!-- MAIN TRANSFORM GROUP FOR SURREAL DISTORTION -->
+                <g transform="rotate(${dist}, 150, 240)">
+
+                    <!-- OPTIONAL: STILT ELEPHANT BACKGROUND DETAIL -->
+                    ${c.elephants ? `
+                        <g transform="translate(40, 260)" stroke="${c.accentColor}" stroke-width="1" opacity="0.4" fill="none">
+                            <ellipse cx="20" cy="10" rx="12" ry="8" />
+                            <line x1="12" y1="18" x2="8" y2="90" />
+                            <line x1="16" y1="18" x2="14" y2="90" />
+                            <line x1="24" y1="18" x2="26" y2="90" />
+                            <line x1="28" y1="18" x2="32" y2="90" />
+                            <path d="M 8,8 Q -2,12 -5,22" />
+                        </g>
+                    ` : ''}
+
+                    <!-- OPTIONAL: SURREAL CRUTCHES -->
+                    ${c.crutches ? `
+                        <g transform="translate(220, 230)" stroke="${c.accentColor}" stroke-width="1.5" opacity="0.7" fill="none">
+                            <path d="M -10,0 C -5,-5 5,-5 10,0" stroke-width="2" />
+                            <line x1="-6" y1="0" x2="0" y2="100" />
+                            <line x1="6" y1="0" x2="0" y2="100" />
+                            <line x1="-3" y1="30" x2="3" y2="30" />
+                        </g>
+                    ` : ''}
+
+                    <!-- CENTER SURREALIST DALI EYE BLOSSOM -->
+                    <g transform="translate(150, 180)" filter="url(#glow-filter-${card.id})">
+                        <!-- Eye Silhouette -->
+                        <path d="M -60,0 Q 0,-45 60,0 Q 0,45 -60,0 Z" fill="none" stroke="url(#gold-grad-${card.id})" stroke-width="3" />
+                        <!-- Iris & Pupil -->
+                        <circle cx="0" cy="0" r="22" fill="none" stroke="${c.accentColor}" stroke-width="2" />
+                        <circle cx="0" cy="0" r="10" fill="url(#gold-grad-${card.id})" />
+                        <circle cx="-3" cy="-3" r="3" fill="#ffffff" />
+                        <!-- Radiating Rays -->
+                        <path d="M 0,-45 L 0,-60 M 0,45 L 0,60 M -60,0 L -75,0 M 60,0 L 75,0" stroke="${c.goldColor}" stroke-width="2" opacity="0.6" />
+                    </g>
+
+                    <!-- ICONIC DALI MELTING CLOCK (DYNAMIC DRIP CONTROL) -->
+                    <g transform="translate(150, 240)" filter="url(#glow-filter-${card.id})">
+                        <!-- Dripping Clock Body -->
+                        <path d="M -45,-10 
+                                 C -50,30 -30,${60 * drip} -10,${90 * drip} 
+                                 C 0,${110 * drip} 20,${90 * drip} 30,${60 * drip} 
+                                 C 45,30 45,-10 0,-20 
+                                 C -30,-20 -40,-20 -45,-10 Z" 
+                              fill="url(#gold-grad-${card.id})" 
+                              stroke="${c.accentColor}" 
+                              stroke-width="2.5" 
+                              fill-opacity="0.85" />
+                              
+                        <!-- Clock Dial / Face Numbers -->
+                        <ellipse cx="-5" cy="15" rx="28" ry="20" fill="none" stroke="#000000" stroke-width="1" opacity="0.4" />
+                        <text x="-5" y="0" font-family="Cinzel" font-size="10" font-weight="bold" fill="#000" text-anchor="middle">XII</text>
+                        <text x="15" y="18" font-family="Cinzel" font-size="9" font-weight="bold" fill="#000" text-anchor="middle">III</text>
+                        <text x="-5" y="32" font-family="Cinzel" font-size="9" font-weight="bold" fill="#000" text-anchor="middle">VI</text>
+                        <text x="-22" y="18" font-family="Cinzel" font-size="9" font-weight="bold" fill="#000" text-anchor="middle">IX</text>
+                        
+                        <!-- Melted Hands -->
+                        <path d="M -5,15 Q 5,0 12,-5" stroke="#000000" stroke-width="2.5" stroke-linecap="round" fill="none" />
+                        <path d="M -5,15 Q -10,28 -2,${40 * drip}" stroke="#000000" stroke-width="2" stroke-linecap="round" fill="none" />
+                        <circle cx="-5" cy="15" r="2.5" fill="#000" />
+                    </g>
+
+                </g> <!-- End Distortion Group -->
+
+                <!-- CARD HEADER & FOOTER TEXT -->
+                <text x="150" y="36" font-family="Cinzel" font-size="16" font-weight="900" fill="${c.goldColor}" letter-spacing="3" text-anchor="middle">
+                    ${card.numeral}
+                </text>
+                
+                <text x="150" y="435" font-family="Cinzel" font-size="14" font-weight="700" fill="${c.goldColor}" letter-spacing="2" text-anchor="middle">
+                    ${card.name.toUpperCase()}
+                </text>
+                <text x="150" y="452" font-family="Inter" font-size="9" fill="#e2e8f0" opacity="0.6" letter-spacing="1" text-anchor="middle">
+                    ${card.subtitle}
+                </text>
+            </svg>
+            `;
+        }
+
+        /* ==========================================================================
+           4. CARD DRAW & TAROT SPREAD RENDERING
+           ========================================================================== */
+        function selectSpread(type) {
+            activeSpread = type;
+            document.querySelectorAll('.spread-btn').forEach(btn => {
+                btn.classList.remove('border-amber-500/40', 'bg-amber-950/20');
+                btn.classList.add('border-amber-500/20', 'bg-black/40');
+            });
+            event.currentTarget.classList.remove('border-amber-500/20', 'bg-black/40');
+            event.currentTarget.classList.add('border-amber-500/40', 'bg-amber-950/20');
+        }
+
+        function drawCards() {
+            const board = document.getElementById('reading-board');
+            const interpSection = document.getElementById('reading-interpretation');
+            const interpContent = document.getElementById('interpretation-content');
+            
+            board.innerHTML = '';
+            interpSection.classList.add('hidden');
+
+            let cardCount = 1;
+            if (activeSpread === 'three') cardCount = 3;
+            else if (activeSpread === 'five') cardCount = 5;
+            else if (activeSpread === 'celtic') cardCount = 10;
+            else if (activeSpread === 'lovers') cardCount = 4;
+            else if (activeSpread === 'career') cardCount = 4;
+
+            // Shuffle Deck
+            const shuffled = [...TAROT_DECK].sort(() => 0.5 - Math.random());
+            activeReadingCards = shuffled.slice(0, cardCount);
+
+            // Render Drawn Cards
+            activeReadingCards.forEach((card, idx) => {
+                const cardWrapper = document.createElement('div');
+                cardWrapper.className = 'flex flex-col items-center animate-fade-in my-2';
+                
+                cardWrapper.innerHTML = `
+                    <div class="card-container w-[200px] sm:w-[220px] aspect-[2/3] cursor-pointer" onclick="flipCard(this, ${card.id})">
+                        <div class="card-inner">
+                            <!-- Card Back -->
+                            <div class="card-back border-2 border-amber-500/40 bg-gradient-to-b from-gray-950 via-purple-950 to-gray-950 flex flex-col items-center justify-center p-4 shadow-xl">
+                                <div class="w-full h-full border border-amber-500/20 rounded-lg flex flex-col items-center justify-center">
+                                    <div class="text-4xl text-amber-400 mb-2 animate-pulse">👁️</div>
+                                    <p class="font-cinzel text-xs text-amber-300 tracking-widest text-center uppercase">Dalí Surreal Oracle</p>
+                                    <p class="text-[10px] text-gray-500 mt-1">Tap to Reveal</p>
+                                </div>
+                            </div>
+                            <!-- Card Front -->
+                            <div class="card-front border border-amber-500/30 rounded-2xl bg-black overflow-hidden shadow-[0_0_20px_rgba(0,0,0,0.8)]">
+                                ${generateCardSVG(card)}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Action Controls below drawn card -->
+                    <div class="mt-3 flex items-center space-x-2 opacity-90">
+                        <button onclick="openCustomizerModal(${card.id})" class="px-3 py-1 text-xs rounded-full border border-amber-500/40 bg-amber-950/60 hover:bg-amber-900/80 text-amber-200 transition flex items-center space-x-1 shadow">
+                            <i class="fa-solid fa-wand-magic">
+</i>
+                            <span>Edit Card Art</span>
+                        </button>
+                    </div>
+                `;
+                board.appendChild(cardWrapper);
+            });
+
+            // Automatically Flip Cards with Staggered Delays
+            setTimeout(() => {
+                const containers = document.querySelectorAll('.card-container');
+                containers.forEach((c, index) => {
+                    setTimeout(() => {
+                        c.classList.add('flipped');
+                    }, index * 250);
+                });
+            }, 300);
+
+            // Generate Reading Summary
+            generateInterpretation(activeReadingCards);
+        }
+
+        function flipCard(container, cardId) {
+            container.classList.toggle('flipped');
+        }
+
+        /* ==========================================================================
+           5. INTERPRETATION ENGINE
+           ========================================================================== */
+        function generateInterpretation(cards) {
+            const interpSection = document.getElementById('reading-interpretation');
+            const interpContent = document.getElementById('interpretation-content');
+            
+            let html = '';
+            cards.forEach((card, i) => {
+                let positionName = `Card ${i+1}`;
+                if (activeSpread === 'three') positionName = ["Past / Foundation", "Present / Catalyst", "Future / Horizon"][i];
+                else if (activeSpread === 'single') positionName = "Daily Oracle Focus";
+                
+                html += `
+                    <div class="bg-gray-950/60 border border-amber-900/30 rounded-xl p-4">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-xs uppercase font-bold tracking-widest text-amber-400">${positionName}</span>
+                            <span class="text-sm font-cinzel font-bold text-amber-200">${card.numeral}. ${card.name}</span>
+                        </div>
+                        <p class="text-xs text-amber-300/80 italic mb-2">"${card.subtitle}"</p>
+                        <p class="text-xs sm:text-sm text-gray-300 leading-relaxed">${card.meaning}</p>
+                        <div class="mt-2 flex flex-wrap gap-1">
+                            ${card.keywords.map(k => `<span class="text-[10px] bg-amber-950/50 text-amber-300 border border-amber-800/40 px-2 py-0.5 rounded-md">${k}</span>`).join('')}
+                        </div>
+                    </div>
+                `;
+            });
+
+            interpContent.innerHTML = html;
+            setTimeout(() => {
+                interpSection.classList.remove('hidden');
+            }, cards.length * 250 + 400);
+        }
+
+        /* ==========================================================================
+           6. LIVE SVG CUSTOMIZER & EDITOR LOGIC
+           ========================================================================== */
+        function openCustomizerModal(cardId) {
+            editingCardId = cardId;
+            const card = TAROT_DECK.find(c => c.id === cardId);
+            if (!card) return;
+
+            // Update Modal Headers
+            document.getElementById('modal-card-title').innerText = `Editing: ${card.name}`;
+            document.getElementById('modal-card-num').innerText = `ARCANA ${card.numeral}`;
+
+            // Populate Controls with Card's Current Custom Styles
+            const c = card.custom;
+            document.getElementById('ctrl-bg-top').value = c.bgTop || "#0a0812";
+            document.getElementById('ctrl-bg-bottom').value = c.bgBottom || "#141124";
+            document.getElementById('ctrl-gold-color').value = c.goldColor || "#ffd54f";
+            document.getElementById('ctrl-accent-color').value = c.accentColor || "#d4af37";
+
+            document.getElementById('ctrl-drip-length').value = c.dripLength || 1.0;
+            document.getElementById('val-drip-length').innerText = c.dripLength || 1.0;
+
+            document.getElementById('ctrl-distortion').value = c.distortion || 0;
+            document.getElementById('val-distortion').innerText = `${c.distortion || 0} deg`;
+
+            document.getElementById('ctrl-glow').value = c.glow || 50;
+            document.getElementById('val-glow').innerText = `${c.glow || 50}%`;
+
+            document.getElementById('ctrl-toggle-elephants').checked = !!c.elephants;
+            document.getElementById('ctrl-toggle-crutches').checked = !!c.crutches;
+            document.getElementById('ctrl-toggle-stars').checked = !!c.stars;
+            document.getElementById('ctrl-toggle-keyhole').checked = !!c.keyhole;
+
+            // Render Live Preview
+            renderModalPreview();
+
+            // Show Modal
+            document.getElementById('customizer-modal').classList.remove('hidden');
+        }
+
+        function closeCustomizerModal() {
+            document.getElementById('customizer-modal').classList.add('hidden');
+            // Refresh main board SVGs
+            refreshActiveBoard();
+            saveCustomizationsToStorage();
+        }
+
+        function renderModalPreview() {
+            const card = TAROT_DECK.find(c => c.id === editingCardId);
+            if (!card) return;
+            const previewContainer = document.getElementById('modal-svg-preview-container');
+            previewContainer.innerHTML = generateCardSVG(card, true);
+        }
+
+        function updateCardStyle() {
+            const card = TAROT_DECK.find(c => c.id === editingCardId);
+            if (!card) return;
+
+            // Read Input Values
+            card.custom.bgTop = document.getElementById('ctrl-bg-top').value;
+            card.custom.bgBottom = document.getElementById('ctrl-bg-bottom').value;
+            card.custom.goldColor = document.getElementById('ctrl-gold-color').value;
+            card.custom.accentColor = document.getElementById('ctrl-accent-color').value;
+
+            card.custom.dripLength = parseFloat(document.getElementById('ctrl-drip-length').value);
+            document.getElementById('val-drip-length').innerText = card.custom.dripLength;
+
+            card.custom.distortion = parseInt(document.getElementById('ctrl-distortion').value);
+            document.getElementById('val-distortion').innerText = `${card.custom.distortion} deg`;
+
+            card.custom.glow = parseInt(document.getElementById('ctrl-glow').value);
+            document.getElementById('val-glow').innerText = `${card.custom.glow}%`;
+
+            card.custom.elephants = document.getElementById('ctrl-toggle-elephants').checked;
+            card.custom.crutches = document.getElementById('ctrl-toggle-crutches').checked;
+            card.custom.stars = document.getElementById('ctrl-toggle-stars').checked;
+            card.custom.keyhole = document.getElementById('ctrl-toggle-keyhole').checked;
+
+            // Update Modal SVG Live
+            renderModalPreview();
+        }
+
+        function applyPresetTheme(themeKey) {
+            const card = TAROT_DECK.find(c => c.id === editingCardId);
+            if (!card) return;
+
+            if (themeKey === 'obsidian') {
+                card.custom = { ...card.custom, bgTop: "#050505", bgBottom: "#1a1600", goldColor: "#ffd700", accentColor: "#d4af37", glow: 70 };
+            } else if (themeKey === 'dusk') {
+                card.custom = { ...card.custom, bgTop: "#2b092b", bgBottom: "#5e1933", goldColor: "#ff91a4", accentColor: "#f43f5e", glow: 60 };
+            } else if (themeKey === 'cyber') {
+                card.custom = { ...card.custom, bgTop: "#03111a", bgBottom: "#022c38", goldColor: "#00f3ff", accentColor: "#38bdf8", glow: 85 };
+            } else if (themeKey === 'sepia') {
+                card.custom = { ...card.custom, bgTop: "#241c12", bgBottom: "#42321e", goldColor: "#fef08a", accentColor: "#ca8a04", glow: 30 };
+            }
+
+            openCustomizerModal(editingCardId); // Refresh controls view
+        }
+
+        function applyStyleToAllCards() {
+            const currentCard = TAROT_DECK.find(c => c.id === editingCardId);
+            if (!currentCard) return;
+
+            const styleToCopy = { ...currentCard.custom };
+            TAROT_DECK.forEach(c => {
+                c.custom = { ...styleToCopy };
+            });
+
+            alert("Applied current Surrealist Style to all 17 Major Arcana cards!");
+            refreshActiveBoard();
+            saveCustomizationsToStorage();
+        }
+
+        function resetCurrentCardStyle() {
+            const card = TAROT_DECK.find(c => c.id === editingCardId);
+            if (!card) return;
+
+            card.custom = {
+                bgTop: "#0a0812", bgBottom: "#141124", goldColor: "#ffd54f", accentColor: "#d4af37",
+                dripLength: 1.0, distortion: 0, glow: 50,
+                elephants: true, crutches: true, stars: true, keyhole: false
+            };
+
+            openCustomizerModal(editingCardId);
+        }
+
+        function refreshActiveBoard() {
+            if (activeReadingCards.length > 0) {
+                // Re-render board with updated SVG styles without breaking card flips
+                const containers = document.querySelectorAll('.card-front');
+                containers.forEach((front, idx) => {
+                    if (activeReadingCards[idx]) {
+                        front.innerHTML = generateCardSVG(activeReadingCards[idx]);
+                    }
+                });
+            }
+        }
+
+        /* ==========================================================================
+           7. GALLERY DECK DRAWER
+           ========================================================================== */
+        function toggleCardDeckDrawer() {
+            const modal = document.getElementById('deck-drawer-modal');
+            modal.classList.toggle('hidden');
+            if (!modal.classList.contains('hidden')) {
+                renderGalleryGrid();
+            }
+        }
+
+        function renderGalleryGrid() {
+            const grid = document.getElementById('gallery-grid');
+            grid.innerHTML = '';
+
+            TAROT_DECK.forEach(card => {
+                const item = document.createElement('div');
+                item.className = 'flex flex-col items-center group cursor-pointer';
+                item.innerHTML = `
+                    <div class="w-full aspect-[2/3] rounded-xl overflow-hidden border border-amber-500/30 group-hover:border-amber-400 group-hover:shadow-[0_0_15px_rgba(212,175,55,0.4)] transition" onclick="openCustomizerModal(${card.id}); toggleCardDeckDrawer();">
+                        ${generateCardSVG(card)}
+                    </div>
+                    <span class="text-xs text-amber-200 mt-2 font-medium group-hover:text-amber-400">${card.numeral}. ${card.name}</span>
+                `;
+                grid.appendChild(item);
+            });
+        }
+
+        function openGlobalThemeModal() {
+            // Open editor for Card 0 as default global baseline
+            openCustomizerModal(0);
+        }
+
+        function resetApp() {
+            document.getElementById('reading-board').innerHTML = `
+                <div class="text-center text-gray-500 my-12">
+                    <i class="fa-solid fa-hand-holding-magic text-5xl mb-4 text-amber-500/30">
+</i>
+                    <p class="text-sm uppercase tracking-widest font-semibold">Press "Draw Surreal Tarot" to Consult the Oracle</p>
+                </div>
+            `;
+            document.getElementById('reading-interpretation').classList.add('hidden');
+            activeReadingCards = [];
+        }
+
+        // Initialize application on load
+        window.onload = initApp;
+    </script>
+</body>
+</html>
+```
